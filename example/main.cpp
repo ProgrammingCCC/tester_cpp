@@ -11,7 +11,7 @@ public:
   };
 };
 
-class TestExample : public AbstractTestHarness {
+class FibbonacciTestHarness : public AbstractTestHarness {
 private:
   Logic l = Logic();
 
@@ -23,3 +23,13 @@ public:
     register_test_func([this]() -> void { assert_equal(10, l.fib(10)); });
   }
 };
+
+class GlobalTestManager : public TestManager {
+public:
+  GlobalTestManager() { add_test(FibbonacciTestHarness()); }
+};
+
+int main(int argc, char **argv) {
+  GlobalTestManager tr = GlobalTestManager();
+  tr.execute();
+}

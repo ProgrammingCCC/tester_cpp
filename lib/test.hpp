@@ -43,13 +43,14 @@ class TestManager {
 private:
   std::vector<AbstractTestHarness> *tests;
 
-public:
-  TestManager() { this->tests = new std::vector<AbstractTestHarness>(); }
-  ~TestManager() { delete this->tests; }
+protected:
   void add_test(AbstractTestHarness &&test) {
     this->tests->push_back(std::move(test));
   }
 
+public:
+  TestManager() { this->tests = new std::vector<AbstractTestHarness>(); }
+  ~TestManager() { delete this->tests; }
   void execute() {
     for (AbstractTestHarness t : (*tests)) {
       t.execute();

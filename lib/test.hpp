@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,19 +19,21 @@ constexpr void assert_equal(const T &expected, const T &testVal) {
 
 class AbstractTestHarness {
 private:
-  std::vector<void (*)()> testFuncs;
+  std::vector<std::function<void()>> *testFuncs;
 
 protected:
-  AbstractTestHarness *register_test_func(void (*func)()) {
-    this->testFuncs.push_back(func);
-    return this;
+  void register_test_func(std::function<void()> func) {
+    this->testFuncs->push_back(func);
   }
 
 public:
-  AbstractTestHarness() { this->testFuncs = std::vector<void (*)()>(); }
+  AbstractTestHarness() {
+    this->testFuncs = new std::vector<std::function<void()>>();
+  }
+  ~AbstractTestHarness() { delete this->testFuncs; }
 
   void execute() {
-    for (auto f : testFuncs) {
+    for (auto f : (*testFuncs)) {
       f();
     }
   }
@@ -43,13 +46,12 @@ private:
 public:
   TestManager() { this->tests = new std::vector<AbstractTestHarness>(); }
   ~TestManager() { delete this->tests; }
-  TestManager *add_test(AbstractTestHarness &&test) {
+  void add_test(AbstractTestHarness &&test) {
     this->tests->push_back(std::move(test));
-    return this;
   }
 
   void execute() {
-    for (auto t : (*tests)) {
+    for (AbstractTestHarness t : (*tests)) {
       t.execute();
     }
     if (failed) {

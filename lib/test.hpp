@@ -13,27 +13,27 @@ constexpr void assert_equal(const T &expected, const T &testVal) {
     std::cout << "Result\tError\tExpected: " << expected << " actual "
               << testVal << std::endl;
     failed = true;
+  } else {
+    std::cout << "Result\tOK" << std::endl;
   }
-  std::cout << "Result\tOK";
 }
 
 class AbstractTestHarness {
 private:
-  std::vector<std::function<void()>> *testFuncs;
+  std::vector<std::function<void()>> testFuncs;
 
 protected:
-  void register_test_func(std::function<void()> func) {
-    this->testFuncs->push_back(func);
+  void register_test_func(std::function<void()> &&func) {
+    this->testFuncs.push_back(std::move(func));
   }
 
 public:
   AbstractTestHarness() {
-    this->testFuncs = new std::vector<std::function<void()>>();
+    this->testFuncs = std::vector<std::function<void()>>();
   }
-  ~AbstractTestHarness() { delete this->testFuncs; }
-
   void execute() {
-    for (auto f : (*testFuncs)) {
+    std::cout << "Found " << testFuncs.size() << " Tests" << std::endl;
+    for (auto f : testFuncs) {
       f();
     }
   }
@@ -41,18 +41,18 @@ public:
 
 class TestManager {
 private:
-  std::vector<AbstractTestHarness> *tests;
+  std::vector<AbstractTestHarness> tests;
 
 protected:
   void add_test(AbstractTestHarness &&test) {
-    this->tests->push_back(std::move(test));
+    this->tests.push_back(std::move(test));
   }
 
 public:
-  TestManager() { this->tests = new std::vector<AbstractTestHarness>(); }
-  ~TestManager() { delete this->tests; }
+  TestManager() { this->tests = std::vector<AbstractTestHarness>(); }
   void execute() {
-    for (AbstractTestHarness t : (*tests)) {
+    std::cout << "Found " << tests.size() << " Test Harnesses" << std::endl;
+    for (AbstractTestHarness t : tests) {
       t.execute();
     }
     if (failed) {

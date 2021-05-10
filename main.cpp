@@ -1,4 +1,4 @@
-#include "../lib/test.hpp"
+#include "lib/test.hpp"
 #include <functional>
 
 class Logic {
@@ -16,9 +16,8 @@ private:
   Logic l = Logic();
 
 public:
-  void TestFib() {
-
-    register_test_func([this]() -> void { assert_equal(55, l.fib(5)); });
+  FibbonacciTestHarness() {
+    register_test_func([this]() -> void { assert_equal(5, l.fib(5)); });
     // this will fail
     register_test_func([this]() -> void { assert_equal(10, l.fib(10)); });
   }

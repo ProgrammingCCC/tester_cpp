@@ -17,15 +17,16 @@ private:
 
 public:
   FibbonacciTestHarness() {
-    register_test_func([this]() -> void { assert_equal(5, l.fib(5)); });
-    // this will fail
-    register_test_func([this]() -> void { assert_equal(10, l.fib(10)); });
+    register_test_func("Fibbonacci 5",
+                       [this]() -> void { assert_equal(5, l.fib(5)); });
+    register_test_func("Fibbonacci 10",
+                       [this]() -> void { assert_equal(10, l.fib(10)); });
   }
 };
 
 class GlobalTestManager : public TestManager {
 public:
-  GlobalTestManager() { add_test(FibbonacciTestHarness()); }
+  GlobalTestManager() { add_test("Fibbonacci Tests", FibbonacciTestHarness()); }
 };
 
 int main(int argc, char **argv) {

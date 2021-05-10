@@ -2,8 +2,8 @@
 
 #include <functional>
 #include <iostream>
+#include <map>
 #include <string>
-#include <vector>
 
 static bool failed = false;
 
@@ -20,40 +20,44 @@ constexpr void assert_equal(const T &expected, const T &testVal) {
 
 class AbstractTestHarness {
 private:
-  std::vector<std::function<void()>> testFuncs;
+  std::map<std::string, std::function<void()>> testFuncs;
 
 protected:
-  void register_test_func(std::function<void()> &&func) {
-    this->testFuncs.push_back(std::move(func));
+  void register_test_func(const std::string &&name,
+                          std::function<void()> &&func) {
+    this->testFuncs.insert(
+        std::pair<std::string, std::function<void()>>(name, func));
   }
 
 public:
   AbstractTestHarness() {
-    this->testFuncs = std::vector<std::function<void()>>();
+    this->testFuncs = std::map<std::string, std::function<void()>>();
   }
   void execute() {
     std::cout << "Found " << testFuncs.size() << " Tests" << std::endl;
     for (auto f : testFuncs) {
-      f();
+      std::cout << "Executing Test " << f.first << std::endl;
+      f.second();
     }
   }
 };
 
 class TestManager {
 private:
-  std::vector<AbstractTestHarness> tests;
+  std::map<std::string, AbstractTestHarness> tests;
 
 protected:
-  void add_test(AbstractTestHarness &&test) {
-    this->tests.push_back(std::move(test));
+  void add_test(const std::string &&name, AbstractTestHarness &&test) {
+    this->tests.insert(std::pair<std::string, AbstractTestHarness>(name, test));
   }
 
 public:
-  TestManager() { this->tests = std::vector<AbstractTestHarness>(); }
+  TestManager() { this->tests = std::map<std::string, AbstractTestHarness>(); }
   void execute() {
     std::cout << "Found " << tests.size() << " Test Harnesses" << std::endl;
-    for (AbstractTestHarness t : tests) {
-      t.execute();
+    for (auto t : tests) {
+      std::cout << "Executing Test Harness " << t.first << std::endl;
+      t.second.execute();
     }
     if (failed) {
       std::cout << "tests failed" << std::endl;
